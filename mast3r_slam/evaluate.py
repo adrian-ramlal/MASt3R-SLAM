@@ -84,6 +84,30 @@ def save_keyframes(savedir, timestamps, keyframes: SharedKeyframes):
             ),
         )
 
+def save_full_res_keyframes(savedir, timestamps, keyframes, original_frames):
+    savedir = pathlib.Path(savedir)
+    savedir.mkdir(exist_ok=True, parents=True)
+    print(f"Saving {len(keyframes)} full-resolution keyframes...")
+    
+    for i in range(len(keyframes)):
+        keyframe = keyframes[i]
+        frame_id = keyframe.frame_id
+        
+        # If frame_id is within the range of original frames
+        if frame_id < len(original_frames):
+            t = timestamps[frame_id]
+            # formatted_t = f"{t}".replace('.', '_')
+            filename = savedir / f"{t}.png"
+                  
+            # Get original full resolution frame
+            frame = original_frames[frame_id]
+            frame = (frame * 255).clip(0, 255).astype(np.uint8)
+            frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+            
+            # Save the full resolution frame
+            cv2.imwrite(str(filename), frame)
+    
+    print(f"Saved full-resolution keyframes to {savedir}")
 
 def save_ply(filename, points, colors):
     colors = colors.astype(np.uint8)
